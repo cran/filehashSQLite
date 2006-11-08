@@ -1,0 +1,17 @@
+exportClasses(
+              "filehashSQLite"
+              )
+
+exportMethods(
+              "dbInsert",
+              "dbFetch",
+              "dbUnlink",
+              "dbExists",
+              "dbList",
+              "dbDelete",
+              "dbMultiFetch",
+              "["
+              )
+              
+importClassesFrom(filehash, "filehash")
+
