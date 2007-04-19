@@ -8,7 +8,8 @@
 \alias{dbList,filehashSQLite-method}
 \alias{dbUnlink,filehashSQLite-method}
 \alias{dbMultiFetch,filehashSQLite,character-method}
-\alias{[,filehashSQLite,character,missing,missing-method}
+\alias{dbDisconnect,filehashSQLite-method}
+\alias{[,filehashSQLite,character,ANY,ANY-method}
 
 
 \title{Class "filehashSQLite"}
@@ -68,11 +69,18 @@
   The \code{"SQLite"} format for \code{filehash} uses an ASCII
   serialization of the data which could result in some rounding error
   for floating point numbers.
+
+  Note that if you use keys that are numbers coerced to character
+  vectors, then you may have trouble with them being coerced to
+  numeric.  The SQLite database will see these key values and
+  automatically convert them to numbers.
 }
 
 \author{Roger D. Peng}
 
 \examples{
+library(filehashSQLite)
+
 dbCreate("myTestDB", type = "SQLite")
 db <- dbInit("myTestDB", type = "SQLite")
 

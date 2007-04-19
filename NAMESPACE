@@ -10,8 +10,24 @@ exportMethods(
               "dbList",
               "dbDelete",
               "dbMultiFetch",
+              "dbDisconnect",
               "["
               )
               
-importClassesFrom(filehash, "filehash")
+importClassesFrom(filehash,
+                  "filehash"
+                  )
 
+importFrom(filehash,
+           "dbInsert",
+           "dbFetch",
+           "dbMultiFetch",
+           "dbList",
+           "dbExists",
+           "dbDelete",
+           "dbUnlink"
+           )
+
+importFrom(DBI,
+           "dbDisconnect"
+           )
