@@ -1,0 +1,8 @@
+6d6e0965fb9d1777eea4fc27bcab74a0 *DESCRIPTION
+52a4fbfa864a92dda24f9faec3e3eac0 *NAMESPACE
+d5676177f1cf3f7034ccbe67aad7b84f *R/filehash-SQLite.R
+f4973577a6444033c4cb2708175acb24 *R/zzz.R
+d2ca3069cdbeb9370d4ca7bfc10d7e53 *inst/COPYING
+457e22f2a305ae6486372b9df6814268 *man/filehashSQLite-class.Rd
+cf42bd18538e3aad83da970f8e84000c *tests/reg-tests.R
+ccbd6f30f5d22fff24c0c1deb5b6fd1a *tests/reg-tests.Rout.save
