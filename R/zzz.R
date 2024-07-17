@@ -1,4 +1,3 @@
-#' @importFrom filehash registerFormatDB
 .onLoad <- function(lib, pkg) {
     ## Register 'filehash' database format
     r <- list(create = createSQLite, initialize = initializeSQLite)

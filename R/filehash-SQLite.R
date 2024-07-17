@@ -1,5 +1,5 @@
 ######################################################################
-## Copyright (C) 2006--2022, Roger D. Peng <rpeng@jhsph.edu>
+## Copyright (C) 2006, Roger D. Peng <rpeng@jhsph.edu>
 ##     
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -17,34 +17,7 @@
 ## 02110-1301, USA
 #####################################################################
 
-#' Filehash SQLite Class
-#' 
-#' @import methods
-#' @importClassesFrom RSQLite SQLiteConnection SQLiteDriver
-#' @importClassesFrom filehash filehash
-#' @exportClass filehashSQLite
-#' @slot datafile character, full path to the file in which the database should be stored
-#' @slot dbcon Object of class \dQuote{SQLiteConnection}, a SQLite connection
-#' @slot drv \sQuote{SQLite} driver
-#' @slot name character, the name of the database
-#' @name filehashSQLite
-#' @aliases filehashSQLite-class
-#' 
-#' @note  \dQuote{filehashSQLite} databases have a \code{"["} method that can be
-#' used to extract multiple elements in an efficient manner.  The return
-#' value is a list with names equal to the keys passed to \code{"["}.
-#' If there are keys passed to \code{"["} that do not exist in the
-#' database, a warning is given.
-#' 
-#' The \dQuote{SQLite} format for \code{filehash} uses an ASCII
-#' serialization of the data which could result in some rounding error
-#' for floating point numbers.
-#' 
-#' Note that if you use keys that are numbers coerced to character
-#' vectors, then you may have trouble with them being coerced to
-#' numeric.  The SQLite database will see these key values and
-#' automatically convert them to numbers.
-#'
+
 setClass("filehashSQLite",
          representation(datafile = "character",
                         dbcon = "SQLiteConnection",
@@ -52,7 +25,6 @@ setClass("filehashSQLite",
          contains = "filehash"
          )
 
-#' @importFrom DBI dbDriver dbConnect
 createSQLite <- function(dbName) {
     drv <- dbDriver("SQLite")
     dbcon <- dbConnect(drv, dbName)
@@ -69,7 +41,6 @@ createSQLite <- function(dbName) {
     invisible(TRUE)
 }
 
-#' @importFrom RSQLite dbDriver
 initializeSQLite <- function(dbName) {
     drv <- dbDriver("SQLite")
     dbcon <- dbConnect(drv, dbName)
@@ -95,18 +66,6 @@ toObject <- function(x) {
     unserialize(bytes)
 }
 
-#' Insert Object
-#' 
-#' Insert a key-value pair into a database
-#' 
-#' @param db object of class "filehashSQLite"
-#' @param key character, key name
-#' @param value R object
-#' @param ... other arguments (not used)
-#' 
-#' @exportMethod dbInsert
-#' @importFrom filehash dbInsert dbDelete
-#' @importFrom DBI dbExecute
 setMethod("dbInsert",
           signature(db = "filehashSQLite", key = "character", value = "ANY"),
           function(db, key, value, ...) {
@@ -117,20 +76,11 @@ setMethod("dbInsert",
                               sep = "")
               ## Remove key before inserting it
               dbDelete(db, key)
-              dbExecute(db@dbcon, SQLcmd)
+              r <- dbExecute(db@dbcon, SQLcmd)
+              print(r)
               invisible(TRUE)
           })
 
-#' Fetch Object
-#' 
-#' Retrieve the value associated with a specific key
-#' 
-#' @param db object of class "filehashSQLite"
-#' @param key character, key name
-#' @param ... other arguments (not used)
-#' 
-#' @exportMethod dbFetch
-#' @importFrom filehash dbFetch
 setMethod("dbFetch", signature(db = "filehashSQLite", key = "character"),
           function(db, key, ...) {
               SQLcmd <- paste("SELECT value FROM ", db@name,
@@ -142,17 +92,6 @@ setMethod("dbFetch", signature(db = "filehashSQLite", key = "character"),
               toObject(data$value)
           })
 
-#' Fetch Multiple Objects
-#' 
-#' Return (as a named list) the values associated with a vector of keys
-#' 
-#' @param db object of class "filehashSQLite"
-#' @param key character vector of key names
-#' @param ... other arguments (not used)
-#' 
-#' @exportMethod dbMultiFetch
-#' @importFrom DBI dbGetQuery
-#' @importFrom filehash dbMultiFetch
 setMethod("dbMultiFetch",
           signature(db = "filehashSQLite", key = "character"),
           function(db, key, ...) {
@@ -175,34 +114,11 @@ setMethod("dbMultiFetch",
               r
           })
 
-#' Fetch Multiple Objects Operator
-#' 
-#' Return (as a named list) the values associated with a vector of keys
-#' 
-#' @param x object of class "filehashSQLite"
-#' @param i index
-#' @param j index
-#' @param ... other arguments (not used)
-#' @param drop drop dimensions
-#' 
-#' @exportMethod "["
-#' @importFrom filehash dbMultiFetch
 setMethod("[", signature(x = "filehashSQLite", i = "character"),
           function(x, i , j, ..., drop) {
               dbMultiFetch(x, i)
           })
 
-#' Delete Object
-#' 
-#' Delete an object from the database
-#' 
-#' @param db object of class "filehashSQLite"
-#' @param key character vector of key names
-#' @param ... other arguments (not used)
-#' 
-#' @exportMethod dbDelete
-#' @importFrom filehash dbDelete
-#' @importFrom DBI dbExecute
 setMethod("dbDelete", signature(db = "filehashSQLite", key = "character"),
           function(db, key, ...) {
               SQLcmd <- paste("DELETE FROM ", db@name,
@@ -211,15 +127,6 @@ setMethod("dbDelete", signature(db = "filehashSQLite", key = "character"),
               invisible(TRUE)
           })
 
-#' List Keys
-#' 
-#' Return a character vector of all keys in the database
-#' 
-#' @param db object of class "filehashSQLite"
-#' @param ... other arguments (not used)
-#' @exportMethod dbList
-#' @importFrom filehash dbList
-#' @importFrom DBI dbGetQuery
 setMethod("dbList", "filehashSQLite",
           function(db, ...) {
               SQLcmd <- paste("SELECT key FROM", db@name)
@@ -230,48 +137,22 @@ setMethod("dbList", "filehashSQLite",
                   as.character(data$key)
           })
 
-#' Check Existence of Key
-#' 
-#' Check to see if a key is in the database
-#' 
-#' @param db object of class "filehashSQLite"
-#' @param key character vector of key names
-#' @param ... other arguments (not used)
-#' @exportMethod dbExists
-#' @importFrom filehash dbExists
 setMethod("dbExists", signature(db = "filehashSQLite", key = "character"),
           function(db, key, ...) {
               keys <- dbList(db)
               key %in% keys
           })
 
-#' Unlink Database
-#' 
-#' Remove a database
-#' 
-#' @param db object of class "filehashSQLite"
-#' @param ... other arguments (not used)
-#' @exportMethod dbUnlink
-#' @importFrom filehash dbUnlink
 setMethod("dbUnlink", "filehashSQLite",
           function(db, ...) {
               dbDisconnect(db)
               v <- unlink(db@datafile)
-              invisible(isTRUE(v == 0))
+              invisible(isTRUE(v == 0L))
           })
 
-#' @export
-setGeneric("dbDisconnect", DBI::dbDisconnect)
-
-#' Disconnect from Database
-#' 
-#' @param conn database object
-#' @param ... other arguments (not used)
-#' @exportMethod dbDisconnect
-#' @importFrom DBI dbDisconnect dbUnloadDriver
 setMethod("dbDisconnect", "filehashSQLite",
           function(conn, ...) {
-                  dbDisconnect(conn@dbcon)
-                  dbUnloadDriver(conn@drv)
-                  invisible(TRUE)
+              dbDisconnect(conn@dbcon)
+              dbUnloadDriver(conn@drv)
+              invisible(TRUE)
           })
